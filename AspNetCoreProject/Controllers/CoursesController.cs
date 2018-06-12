@@ -49,7 +49,6 @@ namespace AspNetCoreProject.Controllers
         // GET: Courses/Create
         public IActionResult Create()
         {
-            // ViewData["DepartmentID"] = new SelectList(_context.Departments, "ID", "ID");
             PopulateDepartmentsDropDownList();
             return View();
         }

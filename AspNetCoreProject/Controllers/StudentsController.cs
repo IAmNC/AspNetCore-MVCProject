@@ -177,30 +177,6 @@ namespace AspNetCoreProject.Controllers
                 }
             }
 
-
-            // Orginally created from Scaffolding
-        /*    if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(UpdateStudent);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!StudentExists(UpdateStudent.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            } */
-
-
             return View(UpdateStudent);
         }
 
@@ -235,14 +211,6 @@ namespace AspNetCoreProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-         /*   var student = await _context.Students
-                .AsNoTracking()
-                .SingleOrDefaultAsync(m => m.ID == id);
-            if (student == null)
-            {
-                return RedirectToAction(nameof(Index));
-            } */
-
 
             try
             {

@@ -48,7 +48,7 @@ namespace AspNetCoreProject.Controllers
         // GET: Departments/Create
         public IActionResult Create()
         {
-          //  ViewData["InstructorID"] = new SelectList(_context.Instructors, "ID", "EmailAddress");
+            ViewData["InstructorID"] = new SelectList(_context.Instructors, "ID", "EmailAddress");
             return View();
         }
 
