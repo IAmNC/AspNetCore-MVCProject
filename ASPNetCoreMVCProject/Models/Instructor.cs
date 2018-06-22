@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static ASPNetCoreMVCProject.Validation.Validation;
 
 namespace ASPNetCoreMVCProject.Models
 {
@@ -24,6 +25,7 @@ namespace ASPNetCoreMVCProject.Models
 
         [DataType(DataType.Date)]
         [Display(Name = "Hired Date")]
+        [RestrictedDate(ErrorMessage = "Please input date that is not past the current date.")]
         public DateTime HiredDate { get; set; }
 
         [Required]

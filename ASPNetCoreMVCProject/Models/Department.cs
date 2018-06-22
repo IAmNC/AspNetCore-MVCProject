@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using static ASPNetCoreMVCProject.Validation.Validation;
 
 namespace ASPNetCoreMVCProject.Models
 {
+
+
     public class Department
     {
         public int ID { get; set; }
@@ -19,6 +22,7 @@ namespace ASPNetCoreMVCProject.Models
 
         [DataType(DataType.Date)]
         [Display(Name = "Start Date")]
+        [RestrictedDate(ErrorMessage = "Please input date that is not past the current date.")]
         public DateTime StartDate { get; set; }
         
         public int? InstructorID { get; set; }

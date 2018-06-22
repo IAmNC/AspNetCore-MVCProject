@@ -78,7 +78,7 @@ namespace ASPNetCoreMVCProject.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Incorrect Email or Password.");
                     return View(model);
                 }
             }

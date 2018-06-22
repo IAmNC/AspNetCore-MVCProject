@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
-
+using static ASPNetCoreMVCProject.Validation.Validation;
 
 namespace ASPNetCoreMVCProject.Models
 {
@@ -22,6 +22,7 @@ namespace ASPNetCoreMVCProject.Models
         public string FirstMidName { get; set; }
 
         [DataType(DataType.Date)]
+        [RestrictedDate(ErrorMessage = "Please input date that is not past the current date.")]
         [Display(Name = "Enrollment Date")]
         public DateTime EnrollmentDate { get; set; }
 
