@@ -1,11 +1,15 @@
 ﻿using ASPNetCoreMVCProject.Data;
 using ASPNetCoreMVCProject.Models;
 using ASPNetCoreMVCProject.Models.UniversityViewModel;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,11 +20,90 @@ namespace ASPNetCoreMVCProject.Controllers
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly DbConnection _connection;
+        private readonly string ConnStr;
 
-        public InstructorsController(ApplicationDbContext context)
+        public InstructorsController(ApplicationDbContext context, DbConnection connection)
         {
+           
             _context = context;
+
+            //Connection for Dapper Query
+            //_connection = connection;
+            //Used for Async Dapper Queries
+            ConnStr = connection.ConnectionString;
+            
         }
+
+
+        // GET: Instructors --- 
+        // Testing Dapper Micro ORM 
+        [AllowAnonymous]
+        public async Task<IActionResult> IndexDapp(string sortOrder, int? id, int? courseID)
+        {
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            var ViewM = new List<Instructor>();
+          
+         //  List<Instructor> ViewM = new List<Instructor>();
+            using (var connection = new SqlConnection(ConnStr))
+            {
+
+                await connection.OpenAsync();
+
+                var sql = "SELECT* FROM Instructor ORDER BY LastName";
+
+    
+               ViewM = connection.QueryAsync<Instructor>(sql).Result.ToList();
+  
+
+                switch (sortOrder)
+                {
+                    case "name_desc":
+                        ViewM = connection.QueryAsync<Instructor>("SELECT * FROM Instructor ORDER BY LastName Desc").Result.ToList();
+                        break;
+                    case "Date":
+                        ViewM = connection.QueryAsync<Instructor>("SELECT * FROM Instructor ORDER BY HiredDate").Result.ToList();
+                        break;
+                    case "date_desc":
+                        ViewM = connection.QueryAsync<Instructor>("SELECT * FROM Instructor ORDER BY HiredDate Desc").Result.ToList();
+                        break;
+                    default:
+                        ViewM = connection.QueryAsync<Instructor>("SELECT * FROM Instructor ORDER BY LastName ").Result.ToList();
+                        break;
+
+                }
+
+                return View(ViewM);
+            }
+
+            /*
+             * Used normal connection that is not Async
+            using (IDbConnection dbConnection = _connection)
+            {   
+                    dbConnection.Open();
+                ViewM = _connection.Query<Instructor>("SELECT * FROM Instructor ORDER BY LastName").ToList();
+
+                switch (sortOrder)
+                {
+                    case "name_desc":
+                        ViewM = _connection.Query<Instructor>("SELECT * FROM Instructor ORDER BY LastName Desc").ToList();
+                        break;
+                    case "Date":
+                        ViewM = _connection.Query<Instructor>("SELECT * FROM Instructor ORDER BY HiredDate").ToList();
+                        break;
+                    case "date_desc":
+                        ViewM = _connection.Query<Instructor>("SELECT * FROM Instructor ORDER BY HiredDate Desc").ToList();
+                        break;
+                    default:
+                        ViewM = _connection.Query<Instructor>("SELECT * FROM Instructor ORDER BY LastName ").ToList();
+                        break;
+                }
+            }
+            */
+      
+        }
+
 
         // GET: Instructors
         [AllowAnonymous]
@@ -29,13 +112,15 @@ namespace ASPNetCoreMVCProject.Controllers
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
 
-            var viewModel = new InstructorIndexData();
-            viewModel.Instructors = await _context.Instructors
+            var viewModel = new InstructorIndexData
+            {
+                Instructors = await _context.Instructors
                   .Include(i => i.CourseAssignments)
                     .ThenInclude(i => i.Course)
                         .ThenInclude(i => i.Department)
                   .OrderBy(i => i.LastName)
-                  .ToListAsync();
+                  .ToListAsync()
+            };
 
             switch (sortOrder)
             {
@@ -98,8 +183,9 @@ namespace ASPNetCoreMVCProject.Controllers
             }
 
             var instructor = await _context.Instructors
+                .FromSql("SELECT * From Instructor WHERE ID = {0}", id)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(m => m.ID == id);
+                .SingleOrDefaultAsync();
             if (instructor == null)
             {
                 return NotFound();
