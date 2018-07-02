@@ -25,10 +25,9 @@ namespace ASPNetCoreMVCProject.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? page)
         {
-            //Maintains the sort order that is currently being used
             ViewData["currentSort"] = sortOrder;
-            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "LastName_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "EnrollmentDate" ? "EnrollmentDate_desc" : "EnrollmentDate";
 
             if (searchString != null)
             {
@@ -42,35 +41,40 @@ namespace ASPNetCoreMVCProject.Controllers
             var students = from m in _context.Students
                            select m;
 
-            //Maintains the search String that is currently being used
+            //Used to maintain the search String that is currently being used
             ViewData["CurrentFilter"] = searchString;
 
-            // Will replace the ViewModel with only the students that contain the letters
-            // that is passed through searchString parameter
+
             if (!String.IsNullOrEmpty(searchString))
             {
                 students = students.Where(m => m.LastName.Contains(searchString)
                     || m.FirstMidName.Contains(searchString));
             }
 
-            // Receives sortOrder paramter in the URL, which then changes the orderBy depending on the which 
-            // the user chooses last name or enrollment date 
-            switch (sortOrder)
+          
+            if (string.IsNullOrEmpty(sortOrder))
             {
-                case "name_desc":
-                    students = students.OrderByDescending(m => m.LastName);
-                    break;
-                case "Date":
-                    students = students.OrderBy(m => m.EnrollmentDate);
-                    break;
-                case "date_desc":
-                    students = students.OrderByDescending(m => m.EnrollmentDate);
-                    break;
-                default:
-                    students = students.OrderBy(m => m.LastName);
-                    break;
-                
+                sortOrder = "LastName";
             }
+
+            bool descending = false;
+            if (sortOrder.EndsWith("_desc"))
+            {
+                sortOrder = sortOrder.Substring(0, sortOrder.Length - 5);
+                descending = true;
+            }
+
+            
+            if (descending)
+            {
+                students = students.OrderByDescending(e => EF.Property<object>(e, sortOrder));
+            }
+            else
+            {
+                students = students.OrderBy(e => EF.Property<object>(e, sortOrder));
+            }
+
+           
             
             int pageSize = 6;
             return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(), page ?? 1, pageSize));
@@ -84,12 +88,21 @@ namespace ASPNetCoreMVCProject.Controllers
             {
                 return NotFound();
             }
+            
+            var student = await _context.Students
+                .FromSql("SELECT * FROM Student WHERE ID = {0}", id)
+                .Include(s => s.Enrollments)
+                    .ThenInclude(e => e.Course)
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
 
+            /*
             var student = await _context.Students
                 .Include(s => s.Enrollments)
                     .ThenInclude(e => e.Course)
                 .AsNoTracking()
                 .SingleOrDefaultAsync(m => m.ID == id);
+            */
 
             if (student == null)
             {

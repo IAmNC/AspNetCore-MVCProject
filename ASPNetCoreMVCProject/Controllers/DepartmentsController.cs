@@ -25,11 +25,15 @@ namespace ASPNetCoreMVCProject.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var schoolContext = _context.Departments.Include(d => d.Administrator);
+            var schoolContext = _context.Departments
+                .FromSql("SELECT * FROM Department")
+                .Include(d => d.Administrator)
+                .AsNoTracking();
             return View(await schoolContext.ToListAsync());
         }
 
         // GET: Departments/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,8 +42,10 @@ namespace ASPNetCoreMVCProject.Controllers
             }
 
             var department = await _context.Departments
+                .FromSql("SELECT * FROM Department WHERE ID = {0}", id)
                 .Include(d => d.Administrator)
-                .SingleOrDefaultAsync(m => m.ID == id);
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
             if (department == null)
             {
                 return NotFound();
