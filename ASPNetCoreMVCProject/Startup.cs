@@ -12,6 +12,8 @@ using ASPNetCoreMVCProject.Data;
 using ASPNetCoreMVCProject.Models;
 using ASPNetCoreMVCProject.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace ASPNetCoreMVCProject
 {
@@ -24,6 +26,8 @@ namespace ASPNetCoreMVCProject
 
         public IConfiguration Configuration { get; }
 
+        public DbConnection DbConnection => new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -33,6 +37,8 @@ namespace ASPNetCoreMVCProject
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+                services.AddScoped<DbConnection>((conn) => DbConnection);
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();

@@ -19,7 +19,6 @@ namespace ASPNetCoreMVCProject.Models
 
         [Required]
         [StringLength(70)]
-        [Column("Instructor First Name")]
         [Display(Name = "First Middle Name")]
         public string FirstMidName { get; set; }
 
