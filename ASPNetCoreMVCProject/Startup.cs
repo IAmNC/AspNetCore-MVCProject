@@ -14,6 +14,7 @@ using ASPNetCoreMVCProject.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace ASPNetCoreMVCProject
 {
@@ -35,13 +36,18 @@ namespace ASPNetCoreMVCProject
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
+                /* Prevent Unconfirmed email addresses from signing in -- Replace the two brackets above when you have the SendGrid API Key stored as Environment Variable
+                (config =>
+                {
+                config.SignIn.RequireConfirmedEmail = true;
+                })*/
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
                 services.AddScoped<DbConnection>((conn) => DbConnection);
 
-            // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthSender>(Configuration);
 
             services.ConfigureApplicationCookie(options =>
             {
