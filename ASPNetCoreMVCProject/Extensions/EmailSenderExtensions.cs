@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using ASPNetCoreMVCProject.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace ASPNetCoreMVCProject.Services
 {
