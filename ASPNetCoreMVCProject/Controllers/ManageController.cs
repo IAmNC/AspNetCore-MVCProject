@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using ASPNetCoreMVCProject.Models;
 using ASPNetCoreMVCProject.Models.ManageViewModels;
 using ASPNetCoreMVCProject.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace ASPNetCoreMVCProject.Controllers
 {
